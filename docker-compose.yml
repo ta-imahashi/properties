@@ -1,0 +1,86 @@
+version: "3"
+
+services:
+  front:
+    build:
+      context: .
+      dockerfile: ./docker/nextjs/Dockerfile
+    volumes:
+      - ./src/front:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "80:3000"
+    tty: true
+    networks:
+      - front-bff-network
+
+  bff:
+    build:
+      context: .
+      dockerfile: ./docker/nestjs/Dockerfile
+    volumes:
+      - ./src/bff:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "3000:3000"
+    tty: true
+    networks:
+      - front-bff-network
+      - bff-api-network
+
+  api:
+    build:
+      context: .
+      dockerfile: ./docker/go/Dockerfile
+    volumes:
+      - ./src/api/:/go/src/app
+      - /go/src/app/tmp
+    ports:
+      - "8080:80"
+    tty: true
+    networks:
+      - bff-api-network
+      - api-dynamodb-network
+      # - property-network
+
+  dynamodb:
+    image: amazon/dynamodb-local:latest
+    user: root
+    command: -jar DynamoDBLocal.jar -sharedDb -dbPath /data
+    volumes:
+      - ./docker/dynamodb/data:/data
+    ports:
+      - 8000:8000
+    networks:
+      - api-dynamodb-network
+      - dynamodb-network
+
+  dynamodb-admin:
+    image: aaronshaf/dynamodb-admin:latest
+    environment:
+      - DYNAMO_ENDPOINT=dynamodb:8000
+    ports:
+      - 8001:8001
+    depends_on:
+      - dynamodb
+    networks:
+      - dynamodb-network
+
+  plantuml:
+    image: plantuml/plantuml-server:latest
+    ports:
+      - 8002:8080
+
+networks:
+  api-dynamodb-network:
+    driver: bridge
+  front-bff-network:
+    driver: bridge
+  bff-api-network:
+    driver: bridge
+  dynamodb-network:
+    driver: bridge
+  # 別のdocker-composeと接続するときに必要
+  # `docker network create property-network`
+  # property-network:
+  #   external: true

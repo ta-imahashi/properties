@@ -1,0 +1,59 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Mutation {
+  createProperty(name: String!, property_id: Float!, type: Float!): Property!
+  createSection(name: String!, property_id: Float!, type: Float!): Section!
+  deleteProperty(id: ID!): Boolean!
+  deleteSection(id: ID!): Boolean!
+  updateProperty(id: ID!, name: String!, property_id: Float!, type: Float!): Property!
+  updateSection(id: ID!, name: String!, property_id: Float!, type: Float!): Section!
+}
+
+type Property {
+  created_at: String!
+  id: ID!
+  name: String!
+  sections: [Section!]!
+  updated_at: String!
+}
+
+type Query {
+  findAll: [Todo]!
+  findOneById(id: ID!): Todo!
+  findProperty(id: ID!): Property!
+  findSection(id: ID!): Section!
+  getProperty: [Property]!
+  getSection: [Section]!
+}
+
+type Section {
+  created_at: String!
+  id: ID!
+  name: String!
+  property: Property!
+  property_id: Float!
+  type: Float!
+  updated_at: String!
+}
+
+type Todo {
+  createdAt: DateTime!
+  description: String
+  id: ID!
+  status: TodoStatus!
+  title: String!
+  updatedAt: DateTime!
+}
+
+enum TodoStatus {
+  COMPLETE
+  IN_PROGRESS
+  NEW
+}
